@@ -1,0 +1,40 @@
+from Model import Measurements
+from app import db
+
+class MeasurementRepository:
+    def add_measurement(self, measurement_data):
+        measurement = Measurements(
+            date=measurement_data['date'],
+            systolic=measurement_data['systolic'],
+            diastolic=measurement_data['diastolic'],
+            seen=measurement_data['seen'],
+            patient_ssn=measurement_data['patient_ssn']
+        )
+        db.session.add(measurement)
+        db.session.commit()
+        return measurement
+
+    def get_measurements(self):
+        return Measurements.query.all()
+
+    def get_measurement_by_id(self, measurement_id):
+        return Measurements.query.get(measurement_id)
+
+    def delete_measurement(self, measurement_id):
+        measurement = self.get_measurement_by_id(measurement_id)
+        if measurement:
+            db.session.delete(measurement)
+            db.session.commit()
+            return True
+        return False
+
+    def update_measurement(self, measurement_id, data):
+        measurement = self.get_measurement_by_id(measurement_id)
+        if measurement:
+            measurement.date = data.get('date', measurement.date)
+            measurement.systolic = data.get('systolic', measurement.systolic)
+            measurement.diastolic = data.get('diastolic', measurement.diastolic)
+            measurement.seen = data.get('seen', measurement.seen)
+            db.session.commit()
+            return measurement
+        return None
