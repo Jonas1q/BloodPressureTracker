@@ -1,6 +1,6 @@
-from flask import Flask, request
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from config import Config
+from patient_service.config import Config
 from patient_service.controller import patient_controller
 
 # Initialize app

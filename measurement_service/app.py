@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from config import Config
+from measurement_service.config import Config
 from Service import measurement_controller
 from Model import Measurements
 
