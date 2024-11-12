@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
-from Repository import MeasurementRepository
+from Repository import measurement_repository
 
-repository = MeasurementRepository()
+repository = measurement_repository()
 measurement_controller = Blueprint('measurement_controller', __name__)
 
 @measurement_controller.route('/measurements', methods=['POST'])
