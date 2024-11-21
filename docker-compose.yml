@@ -1,0 +1,30 @@
+services:
+    measurement-service:
+        build:
+          context: .
+          dockerfile: Measurement/Dockerfile
+        ports:
+            - "8080:8080"
+        depends_on:
+        - featurehub
+
+
+    patient-service:
+        build:
+          context: .
+          dockerfile: Patient/Dockerfile
+        ports:
+            - "8081:8081"
+        depends_on:
+        - featurehub
+
+    
+    featurehub:
+        image: featurehub/party-server:latest
+        ports:
+            - "8085:8085"
+        volumes:
+        - featurehub-h2-data:/db
+
+volumes:
+    featurehub-h2-data:
