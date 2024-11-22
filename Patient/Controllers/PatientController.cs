@@ -6,40 +6,31 @@ using FeatureHubSDK;
 
 namespace Patient.Controllers;
 
-[Route("api/[controller]")]
 [ApiController]
-public class PatientController : ControllerBase
+[Route("api/[controller]")]
+public class PatientController(IPatientRepository patientRepository, IClientContext featurehub) : ControllerBase
 {
-    private readonly IPatientRepository _patientRepository;
-    private readonly IClientContext _featureHub;
-
-    public PatientController(IPatientRepository patientRepository, IClientContext featureHub)
-    {
-        _patientRepository = patientRepository;
-        _featureHub = featureHub;
-    }
-
     [HttpGet]
     public async Task<ActionResult<IEnumerable<PatientModel>>> Get()
     {
-        if (!_featureHub.IsEnabled("patient.get"))
+        if (!featurehub["PatientGet"].IsEnabled)
         {
-            return Forbid();
+            return NoContent();
         }
 
-        var patients = await _patientRepository.GetPatientsAsync();
+        var patients = await patientRepository.GetPatientsAsync();
         return Ok(patients);
     }
 
     [HttpGet("{SSN}")]
     public async Task<ActionResult<PatientModel>> Get(string SSN)
     {
-        if (!_featureHub.IsEnabled("patient.getBySSN"))
+        if (!featurehub["PatientGetBySSN"].IsEnabled)
         {
-            return Forbid();
+            return NoContent();
         }
 
-        var patient = await _patientRepository.GetPatientBySSNAsync(SSN);
+        var patient = await patientRepository.GetPatientBySSNAsync(SSN);
         if (patient == null)
         {
             return NotFound();
@@ -47,24 +38,27 @@ public class PatientController : ControllerBase
         return Ok(patient);
     }
 
-    [HttpPost]
+    [HttpPost("AddPatient")]
     public async Task<ActionResult<PatientModel>> Post([FromBody] PatientModel patient)
     {
-        if (!_featureHub.IsEnabled("patient.post"))
+        FeatureLogging.InfoLogger += (sender, s) => Console.WriteLine("INFO:" + s);
+        Console.WriteLine(featurehub["PatientPost"].IsEnabled);
+        Console.WriteLine(featurehub.IsEnabled("PatientPost"));
+        if (!featurehub["PatientPost"].IsEnabled)
         {
-            return Forbid();
+            return NoContent();
         }
 
-        var createdPatient = await _patientRepository.AddPatientAsync(patient);
+        var createdPatient = await patientRepository.AddPatientAsync(patient);
         return CreatedAtAction(nameof(Get), new { SSN = createdPatient.SSN }, createdPatient);
     }
 
     [HttpPut("{SSN}")]
     public async Task<IActionResult> Put(string SSN, [FromBody] PatientModel patient)
     {
-        if (!_featureHub.IsEnabled("patient.put"))
+        if (!featurehub["PatientPut"].IsEnabled)
         {
-            return Forbid();
+            return NoContent();
         }
 
         if (SSN != patient.SSN)
@@ -72,25 +66,25 @@ public class PatientController : ControllerBase
             return BadRequest();
         }
 
-        await _patientRepository.UpdatePatientAsync(patient);
+        await patientRepository.UpdatePatientAsync(patient);
         return NoContent();
     }
 
     [HttpDelete("{SSN}")]
     public async Task<IActionResult> Delete(string SSN)
     {
-        if (!_featureHub.IsEnabled("patient.delete"))
+        if (!featurehub["PatientDelete"].IsEnabled)
         {
-            return Forbid();
+            return NoContent();
         }
 
-        var patient = await _patientRepository.GetPatientBySSNAsync(SSN);
+        var patient = await patientRepository.GetPatientBySSNAsync(SSN);
         if (patient == null)
         {
             return NotFound();
         }
 
-        await _patientRepository.DeletePatientAsync(patient);
+        await patientRepository.DeletePatientAsync(patient);
         return NoContent();
     }
 }

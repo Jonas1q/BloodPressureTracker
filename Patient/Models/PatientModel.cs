@@ -1,8 +1,15 @@
-﻿namespace Patient.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
+namespace Patient.Models;
 
 public class PatientModel
 {
-    public string SSN { get; set; }
-    public string Mail { get; set; }
-    public string Name { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public string? SSN { get; set; }
+    [Required]
+    public string? Mail { get; set; }
+    [Required]
+    public string? Name { get; set; }
 }

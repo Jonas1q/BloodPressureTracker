@@ -18,10 +18,10 @@ public interface IPatientRepository
 
 public class PatientRepository : IPatientRepository
 {
-    private readonly BloodPressureTrackerDbContext _context;
+    private readonly PatientDbContext _context;
     private readonly AsyncRetryPolicy _retryPolicy;
 
-    public PatientRepository(BloodPressureTrackerDbContext context)
+    public PatientRepository(PatientDbContext context)
     {
         _context = context;
         _retryPolicy = Policy

@@ -3,20 +3,43 @@ services:
         build:
           context: .
           dockerfile: Measurement/Dockerfile
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_HTTP_PORTS=5000
         ports:
-            - "8080:8080"
+            - "5000:5000"
+            - "5001:5001"
         depends_on:
-        - featurehub
+            - featurehub
 
 
     patient-service:
         build:
           context: .
           dockerfile: Patient/Dockerfile
+        environment:
+             - ASPNETCORE_ENVIRONMENT=Development
+             - ASPNETCORE_HTTP_PORTS=5000
         ports:
-            - "8081:8081"
+             - "5002:5000"
+             - "5003:5001"
         depends_on:
-        - featurehub
+             - featurehub
+             - patient-database
+        networks:
+             - bpt-network
+
+    patient-database:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        environment:
+            SA_PASSWORD: iLuvPatients4ever<3
+            ACCEPT_EULA: "Y"
+        ports:
+            - "1401:1433"
+        volumes:
+            - ./data/patientdb:/var/opt/mssql/data
+        networks:
+            - bpt-network
 
     
     featurehub:
@@ -24,7 +47,15 @@ services:
         ports:
             - "8085:8085"
         volumes:
-        - featurehub-h2-data:/db
+            - featurehub-h2-data:/db
+        networks:
+            - bpt-network
+
+
+
+networks:
+  bpt-network:
+    driver: bridge
 
 volumes:
     featurehub-h2-data:
