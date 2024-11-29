@@ -23,7 +23,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<IClientContext>(sp =>
 {
-    var featureHubConfig = new EdgeFeatureHubConfig("http://localhost:8085", Environment.GetEnvironmentVariable("20f56c80-0a65-4ca4-a0ac-af86d8646ff6/kOth0DoMNfI2eFCrBgsFaWQLtlJ3SyYmZ2Bf7ykc"));
+    var featureHubConfig = new EdgeFeatureHubConfig("http://localhost:8085", "20f56c80-0a65-4ca4-a0ac-af86d8646ff6/kOth0DoMNfI2eFCrBgsFaWQLtlJ3SyYmZ2Bf7ykc");
     return featureHubConfig.NewContext();
 });
 

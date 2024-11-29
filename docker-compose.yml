@@ -11,6 +11,9 @@
                - "5001:5001"
            depends_on:
                - featurehub
+               - measurement-database
+           networks:
+               - bpt-network
            command: >
              sh -c "dotnet ef database update --project Measurement/Measurement.csproj && dotnet Measurement.dll"
 
