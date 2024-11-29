@@ -41,10 +41,7 @@ public class PatientController(IPatientRepository patientRepository, IClientCont
     [HttpPost("AddPatient")]
     public async Task<ActionResult<PatientModel>> Post([FromBody] PatientModel patient)
     {
-        FeatureLogging.InfoLogger += (sender, s) => Console.WriteLine("INFO:" + s);
-        Console.WriteLine(featurehub["PatientPost"].IsEnabled);
-        Console.WriteLine(featurehub.IsEnabled("PatientPost"));
-        if (!featurehub["PatientPost"].IsEnabled)
+        if (featurehub["PatientPost"].IsEnabled)
         {
             return NoContent();
         }

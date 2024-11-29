@@ -1,34 +1,36 @@
 ﻿using Measurement.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Measurement.Models;
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using FeatureHubSDK;
 
 namespace Measurement.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class MeasurementController : ControllerBase
+public class MeasurementController(IMeasurementRepository measurementRepository, IClientContext featurehub) : ControllerBase
 {
-    private readonly IMeasurementRepository _measurementRepository;
 
-    public MeasurementController(IMeasurementRepository measurementRepository)
-    {
-        _measurementRepository = measurementRepository;
-    }
-
-    // GET: api/<MeasurementController>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<MeasurementModel>>> Get()
     {
-        var measurements = await _measurementRepository.GetMeasurementsAsync();
+        if (!featurehub["MeasurementGet"].IsEnabled)
+        {
+            return NoContent();
+        }
+
+        var measurements = await measurementRepository.GetMeasurementsAsync();
         return Ok(measurements);
     }
 
-    // GET api/<MeasurementController>/5
     [HttpGet("{id}")]
     public async Task<ActionResult<MeasurementModel>> Get(int id)
     {
-        var measurement = await _measurementRepository.GetMeasurementByIdAsync(id);
+        if (!featurehub["MeasurementGetById"].IsEnabled)
+        {
+            return NoContent();
+        }
+
+        var measurement = await measurementRepository.GetMeasurementByIdAsync(id);
         if (measurement == null)
         {
             return NotFound();
@@ -36,38 +38,50 @@ public class MeasurementController : ControllerBase
         return Ok(measurement);
     }
 
-    // POST api/<MeasurementController>
     [HttpPost]
     public async Task<ActionResult<MeasurementModel>> Post([FromBody] MeasurementModel measurement)
     {
-        var createdMeasurement = await _measurementRepository.AddMeasurementAsync(measurement);
+        if (featurehub["MeasurementPost"].IsEnabled)
+        {
+            return NoContent();
+        }
+
+        var createdMeasurement = await measurementRepository.AddMeasurementAsync(measurement);
         return CreatedAtAction(nameof(Get), new { id = createdMeasurement.Id }, createdMeasurement);
     }
 
-    // PUT api/<MeasurementController>/5
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, [FromBody] MeasurementModel measurement)
     {
+        if (!featurehub["MeasurementPut"].IsEnabled)
+        {
+            return NoContent();
+        }
+
         if (id != measurement.Id)
         {
             return BadRequest();
         }
 
-        await _measurementRepository.UpdateMeasurementAsync(measurement);
+        await measurementRepository.UpdateMeasurementAsync(measurement);
         return NoContent();
     }
 
-    // DELETE api/<MeasurementController>/5
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var measurement = await _measurementRepository.GetMeasurementByIdAsync(id);
+        if (!featurehub["MeasurementDelete"].IsEnabled)
+        {
+            return NoContent();
+        }
+
+        var measurement = await measurementRepository.GetMeasurementByIdAsync(id);
         if (measurement == null)
         {
             return NotFound();
         }
 
-        await _measurementRepository.DeleteMeasurementAsync(measurement);
+        await measurementRepository.DeleteMeasurementAsync(measurement);
         return NoContent();
     }
 }

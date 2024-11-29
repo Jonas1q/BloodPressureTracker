@@ -1,10 +1,8 @@
 using FeatureHubSDK;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Patient.Context;
 using Patient.Repositories;
-using System.Text.Encodings.Web;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,7 +30,7 @@ builder.Services.AddSingleton<IClientContext>(sp =>
 });
 
 builder.Services.AddTransient<IPatientRepository, PatientRepository>();
-builder.Services.AddDbContext<PatientDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("PatientDb")));
+builder.Services.AddDbContext<PatientDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("PatientDb"), sqlOptions => sqlOptions.EnableRetryOnFailure()));
 
 
 

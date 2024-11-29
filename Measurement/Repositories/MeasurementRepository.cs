@@ -17,10 +17,10 @@ public interface IMeasurementRepository
 
 public class MeasurementRepository : IMeasurementRepository
 {
-    private readonly BloodPressureTrackerDbContext _context;
+    private readonly MeasurementDbContext _context;
     private readonly AsyncRetryPolicy _retryPolicy;
 
-    public MeasurementRepository(BloodPressureTrackerDbContext context)
+    public MeasurementRepository(MeasurementDbContext context)
     {
         _context = context;
         _retryPolicy = Policy

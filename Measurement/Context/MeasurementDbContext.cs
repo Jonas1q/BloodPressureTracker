@@ -1,21 +1,20 @@
-﻿namespace Patient.Context;
-
+﻿namespace Measurement.Context;
 using Microsoft.EntityFrameworkCore;
-using Models;
+using Measurement.Models;
 
-public class PatientDbContext : DbContext
+
+public class MeasurementDbContext : DbContext
 {
-    public DbSet<PatientModel> Patients { get; set; }
-
-    public PatientDbContext(DbContextOptions<PatientDbContext> options) : base(options)
+    public DbSet<MeasurementModel> Measurements { get; set; }
+    public MeasurementDbContext(DbContextOptions<MeasurementDbContext> options) : base(options)
     {
         Database.Migrate();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<PatientModel>().HasKey(p => p.SSN);
-        modelBuilder.Entity<PatientModel>().Property(p => p.SSN).ValueGeneratedNever();
+        modelBuilder.Entity<MeasurementModel>().HasKey(p => p.Id);
+        modelBuilder.Entity<MeasurementModel>().Property(p => p.Id).ValueGeneratedNever();
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
