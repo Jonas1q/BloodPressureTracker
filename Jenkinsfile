@@ -1,9 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'mcr.microsoft.com/dotnet/sdk:8.0'
-        }
-    }
+    agent any // Use the default Jenkins node
     environment {
         DOTNET_SKIP_FIRST_TIME_EXPERIENCE = 'true'
         DOTNET_CLI_TELEMETRY_OPTOUT = 'true'
@@ -37,7 +33,7 @@ pipeline {
     post {
         always {
             echo 'Cleaning workspace...'
-            cleanWs() // Deletes workspace to ensure a clean state for the next run
+            cleanWs() // Ensure the workspace is cleaned after each run
         }
         success {
             echo 'Pipeline completed successfully!'
