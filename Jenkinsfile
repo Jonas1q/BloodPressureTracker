@@ -1,64 +1,49 @@
 pipeline {
-    agent any
-
-    environment {
-        DOTNET_VERSION = '8.0'
+    agent {
+        docker {
+            image 'mcr.microsoft.com/dotnet/sdk:8.0'
+        }
     }
-
+    environment {
+        DOTNET_SKIP_FIRST_TIME_EXPERIENCE = 'true'
+        DOTNET_CLI_TELEMETRY_OPTOUT = 'true'
+    }
     stages {
-        stage('Setup') {
+        stage('Checkout') {
             steps {
-                script {
-                    // Install .NET SDK
-                    sh 'wget https://dot.net/v1/dotnet-install.sh'
-                    sh 'chmod +x dotnet-install.sh'
-                    sh './dotnet-install.sh --version $DOTNET_VERSION'
-                    sh 'export PATH=$PATH:$HOME/.dotnet'
-                }
+                echo 'Checking out source code...'
+                checkout scm
             }
         }
-
         stage('Restore') {
             steps {
-                script {
-                    
-                    sh 'dotnet restore'
-                }
+                echo 'Restoring NuGet packages...'
+                sh 'dotnet restore'
             }
         }
-
         stage('Build') {
             steps {
-                script {
-                    
-                    sh 'dotnet build --configuration Release'
-                }
+                echo 'Building the project...'
+                sh 'dotnet build --configuration Release --no-restore'
             }
         }
-
         stage('Test') {
             steps {
-                script {
-                    
-                    sh 'dotnet test --configuration Release'
-                }
-            }
-        }
-
-        stage('Publish') {
-            steps {
-                script {
-                    /
-                    sh 'dotnet publish --configuration Release --output ./publish'
-                }
+                echo 'Running unit tests...'
+                sh 'dotnet test --no-build --configuration Release --verbosity normal'
             }
         }
     }
-
     post {
         always {
-            
-            cleanWs()
+            echo 'Cleaning workspace...'
+            cleanWs() // Deletes workspace to ensure a clean state for the next run
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs for details.'
         }
     }
 }
