@@ -44,15 +44,6 @@ pipeline {
                 }
             }
         }*/
-
-        stage('Publish') {
-            steps {
-                script {
-                    /
-                    sh 'dotnet publish --configuration Release --output ./publish'
-                }
-            }
-        }
     }
 
     post {
