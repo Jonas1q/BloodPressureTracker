@@ -1,42 +1,34 @@
+# Start with the official Jenkins LTS image
 FROM jenkins/jenkins:lts
 
-# Switch to root user to install .NET SDK
+# Switch to root user for installing packages
 USER root
 
-# Show distro information!
-RUN uname -a && cat /etc/*release
-
-# Install all dependencies for .NET Core, Powershell & Docker
-RUN apt-get update
-RUN apt-get install -y \
-    curl libunwind8 gettext apt-transport-https gnupg
-
-# Based on instructiions at https://www.microsoft.com/net/download/linux-package-manager/debian9/sdk-current
-# Install microsoft.qpg
-RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
-RUN mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg
-RUN sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-stretch-prod stretch main" > /etc/apt/sources.list.d/dotnetdev.list'
-
-# Install the .NET Core 3.1 & .NET 5.0 frameworks & powershell
-RUN apt-get update
-RUN apt-get install -y dotnet-sdk-3.1 dotnet-sdk-5.0 powershell
-
-# Install Docker clinet
-RUN apt-get update && \
-    apt-get -y install apt-transport-https \
-    ca-certificates \
+# Update and install dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
     curl \
-    gnupg2 \
-    software-properties-common && \
-    curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg > /tmp/dkey; apt-key add /tmp/dkey && \
-    add-apt-repository \
-    "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") \
-    $(lsb_release -cs) \
-    stable" && \
-    apt-get update && \
-    apt-get -y install docker-ce
+    git \
+    software-properties-common \
+    apt-transport-https \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# RUN usermod -aG docker jenkins
+# Install .NET SDK 8.0
+RUN wget https://packages.microsoft.com/config/ubuntu/22.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb \
+    && dpkg -i packages-microsoft-prod.deb \
+    && apt-get update \
+    && apt-get install -y dotnet-sdk-8.0 \
+    && rm packages-microsoft-prod.deb
 
-# # Switch back to jenkins user
+# Verify installations
+RUN dotnet --version && git --version
+
+# Switch back to Jenkins user
 USER jenkins
+
+# Expose Jenkins default port
+EXPOSE 8080
+
+# Add Jenkins volume
+VOLUME /var/jenkins_home
