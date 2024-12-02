@@ -6,18 +6,6 @@ pipeline {
     }
 
     stages {
-        stage('Setup') {
-            steps {
-                script {
-                    // Install .NET SDK
-                    sh 'wget https://dot.net/v1/dotnet-install.sh'
-                    sh 'chmod +x dotnet-install.sh'
-                    sh './dotnet-install.sh --version $DOTNET_VERSION'
-                    sh 'export PATH=$PATH:$HOME/.dotnet'
-                }
-            }
-        }
-
         stage('Restore') {
             steps {
                 script {
